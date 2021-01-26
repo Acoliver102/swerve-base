@@ -12,19 +12,15 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.Constants
+import frc.robot.Constants.Chassis.DRIVING_RATIO
 import frc.robot.Constants.Chassis.SWERVE_FORWARD_SPEED_MAX
 import frc.robot.Constants.Chassis.SWERVE_ROT_SPEED_MAX
 import frc.robot.Constants.Chassis.SWERVE_STRAFE_SPEED_MAX
 import frc.robot.Constants.Chassis.TRACK_LENGTH_METERS
 import frc.robot.Constants.Chassis.TRACK_WIDTH_METERS
+import frc.robot.Constants.Chassis.WHEEL_RADIUS_METERS
 import frc.robot.commands.chassis.ChassisRunJoystick
-import frc.robot.fusion.motion.ControlMode
-import frc.robot.fusion.motion.DutyCycleConfig
-import frc.robot.fusion.motion.FTalonFX
-import frc.robot.fusion.motion.FollowerConfig
-import frc.robot.fusion.motion.MotionCharacteristics
-import frc.robot.fusion.motion.MotorID
-import frc.robot.fusion.motion.MotorModel
+import frc.robot.fusion.motion.*
 import kotlin.math.*
 
 object Chassis : SubsystemBase() { // Start by defining motors
@@ -140,13 +136,13 @@ object Chassis : SubsystemBase() { // Start by defining motors
      */
 
     // TODO : Implement efficient axis turning (limit to 180 degrees of motion)
-    // TODO : PID Tune everything
     // TODO : Set Safe Max speed for testing
 
-    fun swerveDrive(forward_input:Double, strafe_input:Double, rot_speed: Double) {
+    fun swerveDriveMath(forward_input:Double, strafe_input:Double, rot_input: Double): List<Double> {
 
         var forward_speed = forward_input*SWERVE_FORWARD_SPEED_MAX
         var strafe_speed = strafe_input*SWERVE_STRAFE_SPEED_MAX
+        var rot_speed =  rot_input* SWERVE_ROT_SPEED_MAX
 
         val alpha = atan(TRACK_LENGTH_METERS / TRACK_WIDTH_METERS)/2
         val distance_to_wheel = sqrt((TRACK_LENGTH_METERS).pow(2) + TRACK_WIDTH_METERS.pow(2))/2
@@ -173,6 +169,45 @@ object Chassis : SubsystemBase() { // Start by defining motors
                 + forward_speed).pow(2)).pow(1/2)
 
         // TODO : Convert m/s -> wheel speeds, set up PID for axis motors
+
+        var speeds = mutableListOf<Double>(speedFrontLeft, speedBackLeft, speedFrontRight, speedBackRight)
+        var angles = mutableListOf<Double>(angleFrontLeft, angleBackLeft, angleFrontRight, angleBackRight)
+
+        // Conversions
+
+        speeds.replaceAll { s -> s/WHEEL_RADIUS_METERS } // to rad/s
+        speeds.replaceAll { s -> 2048*s/(2*PI) } // to ticks/s
+        speeds.replaceAll { s -> s*DRIVING_RATIO } // account for driving ratio
+
+        angles.replaceAll { a -> 2048*a/(2*PI) } // to ticks
+
+        var outputs = listOf(angleFrontLeft, speedFrontLeft, angleBackLeft, speedBackLeft, angleFrontRight, speedFrontRight
+        , angleBackRight, speedBackRight)
+
+        return outputs
+
+    }
+
+    fun runSwerveJoystick(lStickYAxis: Double, lStickXAxis: Double, rStickXAxis: Double) {
+        val settings = Chassis.swerveDriveMath(lStickYAxis, lStickXAxis, rStickXAxis)
+
+        var angleFL = settings.get(0)
+        axisControllerFrontLeft.control(ControlMode.Position, PositionConfig(angleFL.toInt()))
+        var speedFL = settings.get(1)
+        talonFXFrontLeft.control(ControlMode.Velocity, VelocityConfig(speedFL.toInt()))
+        var angleBL = settings.get(2)
+        axisControllerFrontLeft.control(ControlMode.Position, PositionConfig(angleBL.toInt()))
+        var speedBL = settings.get(3)
+        talonFXFrontLeft.control(ControlMode.Velocity, VelocityConfig(speedBL.toInt()))
+        var angleFR = settings.get(4)
+        axisControllerFrontLeft.control(ControlMode.Position, PositionConfig(angleFR.toInt()))
+        var speedFR = settings.get(5)
+        talonFXFrontLeft.control(ControlMode.Velocity, VelocityConfig(speedFR.toInt()))
+        var angleBR = settings.get(6)
+        axisControllerFrontLeft.control(ControlMode.Position, PositionConfig(angleBR.toInt()))
+        var speedBR = settings.get(7)
+        talonFXFrontLeft.control(ControlMode.Velocity, VelocityConfig(speedBR.toInt()))
+
 
     }
 

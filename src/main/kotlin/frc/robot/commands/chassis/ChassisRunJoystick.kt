@@ -5,18 +5,18 @@ import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.Controls
 import frc.robot.subsystems.Chassis
 
-class ChassisRunJoystick : CommandBase() {
-    private val speedLimiter = SlewRateLimiter(2.5) // Cap accel and sens
-    private val rotationLimiter = SlewRateLimiter(2.5)
-
-    init {
-        addRequirements(Chassis)
-    }
-
-    override fun execute() {
-        Chassis.joystickDrive(
-            -speedLimiter.calculate(Controls.controller.getRawAxis(4)), // Drive Chassis
-            rotationLimiter.calculate(Controls.controller.getRawAxis(1))
-        )
-    }
-}
+//class ChassisRunJoystick : CommandBase() {
+//    private val speedLimiter = SlewRateLimiter(2.5) // Cap accel and sens
+//    private val rotationLimiter = SlewRateLimiter(2.5)
+//
+//    init {
+//        addRequirements(Chassis)
+//    }
+//
+//    override fun execute() {
+//        Chassis.joystickDrive(
+//            -speedLimiter.calculate(Controls.controller.getRawAxis(4)), // Drive Chassis
+//            rotationLimiter.calculate(Controls.controller.getRawAxis(1))
+//        )
+//    }
+//}

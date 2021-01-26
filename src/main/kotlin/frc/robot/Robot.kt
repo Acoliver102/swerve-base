@@ -31,10 +31,7 @@ class Robot : TimedRobot() {
         // autonomous chooser on the dashboard.
         mRobotContainer = RobotContainer()
         // Automatically grab auto command to ensure m_autonomousCommand is defined before teleopInit is run
-        mAutonomousCommand = mRobotContainer.getAutonomousCommand()
 
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1)
     }
 
     /**
@@ -65,10 +62,7 @@ class Robot : TimedRobot() {
      * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
      */
     override fun autonomousInit() {
-        mAutonomousCommand = mRobotContainer.getAutonomousCommand()
 
-        // schedule the autonomous command (example)
-        mAutonomousCommand.let { mAutonomousCommand.schedule() }
     }
 
     /**
