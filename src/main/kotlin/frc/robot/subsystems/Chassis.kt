@@ -15,6 +15,7 @@ import frc.robot.Constants
 import frc.robot.Constants.Chassis.SWERVE_FORWARD_SPEED_MAX
 import frc.robot.Constants.Chassis.SWERVE_ROT_SPEED_MAX
 import frc.robot.Constants.Chassis.SWERVE_STRAFE_SPEED_MAX
+import frc.robot.Constants.Chassis.TRACK_LENGTH_METERS
 import frc.robot.Constants.Chassis.TRACK_WIDTH_METERS
 import frc.robot.commands.chassis.ChassisRunJoystick
 import frc.robot.fusion.motion.ControlMode
@@ -85,29 +86,12 @@ object Chassis : SubsystemBase() { // Start by defining motors
             talonFXFrontRight.selectedSensorVelocity.toDouble() / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS * 10
         )
 
-    private val drive = DifferentialDrive(talonFXFrontLeft, talonFXFrontRight) // set drive
 
-    private val ahrs = AHRS(SPI.Port.kMXP).apply {
-        calibrate() // motion sensor
-    }
+
 
     var generalMotionCharacteristics = MotionCharacteristics(ControlMode.DutyCycle, dutyCycleConfig = DutyCycleConfig(0.5))
 
-    val odometry = DifferentialDriveOdometry(Rotation2d.fromDegrees(heading))
 
-    fun resetOdometry(pose: Pose2d) {
-        odometry.resetPosition(pose, Rotation2d.fromDegrees(heading))
-    }
-
-    val heading: Double get() = ahrs.angle.IEEErem(360.0)
-
-    fun resetHeading() {
-        ahrs.reset()
-    }
-
-    val turnRate: Double get() = ahrs.rate
-
-    val pose: Pose2d get() = odometry.poseMeters
 
     init {
         defaultCommand = ChassisRunJoystick() // Set default state to run with joystick
@@ -121,19 +105,10 @@ object Chassis : SubsystemBase() { // Start by defining motors
     }
 
     override fun periodic() {
-        odometry.update(Rotation2d(heading), leftPosition, rightPosition) // Update sensor data
+
     }
 
-    fun joystickDrive(x: Double, z: Double) {
-        drive.curvatureDrive( // Run with joystick
-            x * generalMotionCharacteristics.dutyCycleConfig!!.dutyCycle,
-            z * generalMotionCharacteristics.dutyCycleConfig!!.dutyCycle, true
-        )
-    }
 
-    fun tankDrive(left: Double, right: Double) { // Run as tank
-        drive.tankDrive(left, right)
-    }
 
     /** SWERVE DRIVE EXPLANATION:
      *
