@@ -12,6 +12,10 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.Constants
+import frc.robot.Constants.Chassis.SWERVE_FORWARD_SPEED_MAX
+import frc.robot.Constants.Chassis.SWERVE_ROT_SPEED_MAX
+import frc.robot.Constants.Chassis.SWERVE_STRAFE_SPEED_MAX
+import frc.robot.Constants.Chassis.TRACK_WIDTH_METERS
 import frc.robot.commands.chassis.ChassisRunJoystick
 import frc.robot.fusion.motion.ControlMode
 import frc.robot.fusion.motion.DutyCycleConfig
@@ -20,8 +24,7 @@ import frc.robot.fusion.motion.FollowerConfig
 import frc.robot.fusion.motion.MotionCharacteristics
 import frc.robot.fusion.motion.MotorID
 import frc.robot.fusion.motion.MotorModel
-import kotlin.math.IEEErem
-import kotlin.math.PI
+import kotlin.math.*
 
 object Chassis : SubsystemBase() { // Start by defining motors
     // Motor Controllers
@@ -47,6 +50,31 @@ object Chassis : SubsystemBase() { // Start by defining motors
         control(ControlMode.Follower, FollowerConfig(talonFXFrontRight))
         configNeutralDeadband(0.05)
     }
+    private val axisControllerFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_L, "axisFrontLeft", MotorModel.TalonFX)).apply {
+        configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
+        setInverted(TalonFXInvertType.Clockwise)
+        configNeutralDeadband(0.05)
+        selectedSensorPosition = 0
+    }
+    private val axisControllerBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_L, "axisBackLeft", MotorModel.TalonFX)).apply {
+        configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
+        setInverted(TalonFXInvertType.Clockwise)
+        configNeutralDeadband(0.05)
+        selectedSensorPosition = 0
+    }
+    private val axisControllerFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_R, "axisFrontRight", MotorModel.TalonFX)).apply {
+        configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
+        setInverted(TalonFXInvertType.Clockwise)
+        configNeutralDeadband(0.05)
+        selectedSensorPosition = 0
+    }
+    private val axisControllerBackRight = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_R, "axisBackRight", MotorModel.TalonFX)).apply {
+        configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
+        setInverted(TalonFXInvertType.Clockwise)
+        configNeutralDeadband(0.05)
+        selectedSensorPosition = 0
+    }
+
 
     // wheel position sensor sets
     val leftPosition: Double get() = talonFXFrontLeft.selectedSensorPosition / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS
@@ -106,4 +134,71 @@ object Chassis : SubsystemBase() { // Start by defining motors
     fun tankDrive(left: Double, right: Double) { // Run as tank
         drive.tankDrive(left, right)
     }
+
+    /** SWERVE DRIVE EXPLANATION:
+     *
+     *              ^
+     *              \ FORWARD
+     *  ____________\______________
+     *  |                          |
+     *  |                          |
+     *  |                          |
+     *  |             ___          |
+     *  |           /    \         |  STRAFING
+     *  |          V  X  |         | --->
+     *  |          \ ___/          |
+     *  |         ROTATION         |
+     *  |                          |
+     *  |                          |
+     *  |__________________________|
+     *
+     *  The X AXIS of the LEFT joystick controls strafing
+     *  The Y AXIS of the LEFT joystick controls forward motion
+     *  The X AXIS of the RIGHT joystick controls rotation
+     *
+     *
+     *
+     *  Command: forward, strafe are percentages
+     *           rotation is counterclockwise
+     *
+     *  Axis motors are configured to turn counterclockwise (we install them upside down)
+     */
+
+    // TODO : Implement efficient axis turning (limit to 180 degrees of motion)
+    // TODO : PID Tune everything
+    // TODO : Set Safe Max speed for testing
+
+    fun swerveDrive(forward_input:Double, strafe_input:Double, rot_speed: Double) {
+
+        var forward_speed = forward_input*SWERVE_FORWARD_SPEED_MAX
+        var strafe_speed = strafe_input*SWERVE_STRAFE_SPEED_MAX
+
+        val alpha = atan(TRACK_LENGTH_METERS / TRACK_WIDTH_METERS)/2
+        val distance_to_wheel = sqrt((TRACK_LENGTH_METERS).pow(2) + TRACK_WIDTH_METERS.pow(2))/2
+        var rotation_added_speed = rot_speed*distance_to_wheel
+
+        var angleFrontLeft = atan((rotation_added_speed* sin(alpha) - strafe_speed)/(forward_speed -
+                rotation_added_speed* cos(alpha)))
+        var speedFrontLeft = ((forward_speed - rotation_added_speed* cos(alpha)).pow(2) + (rotation_added_speed* sin(alpha)
+                - strafe_speed).pow(2)).pow(1/2)
+
+        var angleBackLeft = atan((-rotation_added_speed* sin(alpha) - strafe_speed)/(forward_speed -
+                rotation_added_speed* cos(alpha)))
+        var speedBackLeft = ((forward_speed - rotation_added_speed* cos(alpha)).pow(2) + (-rotation_added_speed* sin(alpha)
+                - strafe_speed).pow(2)).pow(1/2)
+
+        var angleFrontRight = atan((rotation_added_speed*sin(alpha) - strafe_speed)/(rotation_added_speed*cos(alpha)
+                + forward_speed))
+        var speedFrontRight = ((rotation_added_speed*sin(alpha) - strafe_speed).pow(2) + (rotation_added_speed*cos(alpha)
+                + forward_speed).pow(2)).pow(1/2)
+
+        var angleBackRight = atan((-rotation_added_speed*sin(alpha) - strafe_speed)/(rotation_added_speed*cos(alpha)
+                + forward_speed))
+        var speedBackRight = ((-rotation_added_speed*sin(alpha) - strafe_speed).pow(2) + (rotation_added_speed*cos(alpha)
+                + forward_speed).pow(2)).pow(1/2)
+
+        // TODO : Convert m/s -> wheel speeds, set up PID for axis motors
+
+    }
+
 }
