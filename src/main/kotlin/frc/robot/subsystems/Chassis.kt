@@ -20,6 +20,7 @@ import frc.robot.Constants.Chassis.TRACK_LENGTH_METERS
 import frc.robot.Constants.Chassis.TRACK_WIDTH_METERS
 import frc.robot.Constants.Chassis.WHEEL_RADIUS_METERS
 import frc.robot.commands.chassis.ChassisRunJoystick
+import frc.robot.commands.chassis.ChassisRunSwerve
 import frc.robot.fusion.motion.*
 import kotlin.math.*
 
@@ -74,13 +75,23 @@ object Chassis : SubsystemBase() { // Start by defining motors
 
 
     // wheel position sensor sets
-    val leftPosition: Double get() = talonFXFrontLeft.selectedSensorPosition / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS
-    val rightPosition: Double get() = talonFXFrontRight.selectedSensorPosition / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS
-    val wheelSpeeds: DifferentialDriveWheelSpeeds
-        get() = DifferentialDriveWheelSpeeds(
-            talonFXFrontLeft.selectedSensorVelocity.toDouble() / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS * 10,
-            talonFXFrontRight.selectedSensorVelocity.toDouble() / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS * 10
-        )
+//    val leftPosition: Double get() = talonFXFrontLeft.selectedSensorPosition / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS
+//    val rightPosition: Double get() = talonFXFrontRight.selectedSensorPosition / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS
+//    val wheelSpeeds: DifferentialDriveWheelSpeeds
+//        get() = DifferentialDriveWheelSpeeds(
+//            talonFXFrontLeft.selectedSensorVelocity.toDouble() / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS * 10,
+//            talonFXFrontRight.selectedSensorVelocity.toDouble() / 4096 * 2 * PI * Constants.Chassis.WHEEL_RADIUS_METERS * 10
+//        )
+
+    private val ahrs = AHRS(SPI.Port.kMXP).apply {
+        calibrate() // motion sensor
+    }
+
+    val heading: Double get() = ahrs.angle.IEEErem(360.0)
+
+    fun resetHeading() {
+        ahrs.reset()
+    }
 
 
 
@@ -90,7 +101,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
 
 
     init {
-        defaultCommand = ChassisRunJoystick() // Set default state to run with joystick
+        defaultCommand = ChassisRunSwerve() // Set default state to run with joystick
 
         Shuffleboard.getTab("Chassis").add(talonFXFrontRight)
         Shuffleboard.getTab("Chassis").add(talonFXFrontLeft)
