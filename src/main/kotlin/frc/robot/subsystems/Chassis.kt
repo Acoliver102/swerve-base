@@ -33,9 +33,10 @@ object Chassis : SubsystemBase() { // Start by defining motors
         selectedSensorPosition = 0
     }
     private val talonFXBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_L, "talonFXBackLeft", MotorModel.TalonFX)).apply {
-        setInverted(TalonFXInvertType.FollowMaster)
-        control(ControlMode.Follower, FollowerConfig(talonFXFrontLeft))
+        setInverted(TalonFXInvertType.CounterClockwise)
         configNeutralDeadband(0.05)
+        configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
+        selectedSensorPosition = 0
     }
     private val talonFXFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_F_R, "talonFXFrontRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
@@ -44,9 +45,10 @@ object Chassis : SubsystemBase() { // Start by defining motors
         selectedSensorPosition = 0
     }
     private val talonFXBackRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_R, "talonFXBackRight", MotorModel.TalonFX)).apply {
-        setInverted(TalonFXInvertType.FollowMaster)
-        control(ControlMode.Follower, FollowerConfig(talonFXFrontRight))
+        setInverted(TalonFXInvertType.CounterClockwise)
+        configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         configNeutralDeadband(0.05)
+        selectedSensorPosition = 0
     }
     private val axisControllerFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_L, "axisFrontLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
