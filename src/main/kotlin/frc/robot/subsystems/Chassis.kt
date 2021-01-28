@@ -28,6 +28,7 @@ import frc.robot.Constants.Chassis.SWERVE_STRAFE_SPEED_MAX
 import frc.robot.Constants.Chassis.TRACK_LENGTH_METERS
 import frc.robot.Constants.Chassis.TRACK_WIDTH_METERS
 import frc.robot.Constants.Chassis.WHEEL_RADIUS_METERS
+import frc.robot.commands.chassis.ChassisRunBasic
 import frc.robot.commands.chassis.ChassisRunSwerve
 import frc.robot.fusion.motion.*
 import kotlin.math.*
@@ -40,7 +41,8 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(0.0, 0.1, 0.0, 0.0)
+                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD),
+                DutyCycleConfig(0.1)
         )
     }
     private val talonFXBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_L, "talonFXBackLeft", MotorModel.TalonFX)).apply {
@@ -49,7 +51,8 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD),
+                DutyCycleConfig(0.1)
         )
     }
     private val talonFXFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_F_R, "talonFXFrontRight", MotorModel.TalonFX)).apply {
@@ -58,7 +61,8 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD),
+                DutyCycleConfig(0.1)
         )
     }
     private val talonFXBackRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_R, "talonFXBackRight", MotorModel.TalonFX)).apply {
@@ -67,7 +71,8 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD),
+                DutyCycleConfig(0.1)
         )
     }
     private val axisControllerFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_L, "axisFrontLeft", MotorModel.TalonFX)).apply {
@@ -76,7 +81,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(0.0, 0.2, 0.0, 0.0)
+                FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
         )
     }
     private val axisControllerBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_L, "axisBackLeft", MotorModel.TalonFX)).apply {
@@ -102,9 +107,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
-        control(
-                FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
-        )
+        control(FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD))
     }
 
 
@@ -137,16 +140,23 @@ object Chassis : SubsystemBase() { // Start by defining motors
     init {
         defaultCommand = ChassisRunSwerve() // Set default state to run with joystick
 
-        Shuffleboard.getTab("Chassis").add(talonFXFrontRight)
-        Shuffleboard.getTab("Chassis").add(talonFXFrontLeft)
-        Shuffleboard.getTab("Chassis").add(talonFXBackRight)
-        Shuffleboard.getTab("Chassis").add(talonFXBackLeft)
-
-        Shuffleboard.getTab("Chassis").add(this)
+//        Shuffleboard.getTab("Chassis").add(talonFXFrontRight)
+//        Shuffleboard.getTab("Chassis").add(talonFXFrontLeft)
+//        Shuffleboard.getTab("Chassis").add(talonFXBackRight)
+//        Shuffleboard.getTab("Chassis").add(talonFXBackLeft)
+//
+//        Shuffleboard.getTab("Chassis").add(this)
     }
 
     override fun periodic() {
 
+    }
+
+    fun chassisBasic() {
+        talonFXFrontLeft.control(ControlMode.DutyCycle)
+        talonFXFrontRight.control(ControlMode.DutyCycle)
+        talonFXBackLeft.control(ControlMode.DutyCycle)
+        talonFXBackRight.control(ControlMode.DutyCycle)
     }
 
 
@@ -238,22 +248,30 @@ object Chassis : SubsystemBase() { // Start by defining motors
         val settings = Chassis.swerveDriveMath(lStickYAxis, lStickXAxis, rStickXAxis)
 
         var angleFL = settings.get(0)
-        axisControllerFrontLeft.control(ControlMode.Position, PositionConfig(angleFL.toInt()))
+        axisControllerFrontLeft.control(PositionConfig(angleFL.toInt()))
+        axisControllerFrontLeft.control(ControlMode.Position)
         var speedFL = settings.get(1)
-        talonFXFrontLeft.control(ControlMode.Velocity, VelocityConfig(speedFL.toInt()))
+        talonFXFrontLeft.control(VelocityConfig(speedFL.toInt()))
+        talonFXFrontLeft.control(ControlMode.Velocity)
         var angleBL = settings.get(2)
-        axisControllerFrontLeft.control(ControlMode.Position, PositionConfig(angleBL.toInt()))
+        axisControllerBackLeft.control(PositionConfig(angleBL.toInt()))
+        axisControllerBackLeft.control(ControlMode.Position)
         var speedBL = settings.get(3)
-        talonFXFrontLeft.control(ControlMode.Velocity, VelocityConfig(speedBL.toInt()))
+        talonFXBackLeft.control(VelocityConfig(speedBL.toInt()))
+        talonFXBackLeft.control(ControlMode.Velocity)
         var angleFR = settings.get(4)
-        axisControllerFrontLeft.control(ControlMode.Position, PositionConfig(angleFR.toInt()))
+        axisControllerFrontRight.control(PositionConfig(angleFR.toInt()))
+        axisControllerFrontRight.control(ControlMode.Position)
         var speedFR = settings.get(5)
-        talonFXFrontLeft.control(ControlMode.Velocity, VelocityConfig(speedFR.toInt()))
+        talonFXFrontRight.control(VelocityConfig(speedFR.toInt()))
+        talonFXFrontRight.control(ControlMode.Velocity)
         var angleBR = settings.get(6)
-        axisControllerFrontLeft.control(ControlMode.Position, PositionConfig(angleBR.toInt()))
+        axisControllerBackRight.control(PositionConfig(angleBR.toInt()))
+        axisControllerBackRight.control(ControlMode.Position)
         var speedBR = settings.get(7)
-        talonFXFrontLeft.control(ControlMode.Velocity, VelocityConfig(speedBR.toInt()))
-
+        talonFXBackRight.control(VelocityConfig(speedBR.toInt()))
+        talonFXBackRight.control(ControlMode.Velocity)
+//
 
     }
 
