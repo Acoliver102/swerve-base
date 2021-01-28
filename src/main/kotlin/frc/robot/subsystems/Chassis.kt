@@ -12,14 +12,22 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.Constants
+import frc.robot.Constants.Chassis.AXIS_kD
+import frc.robot.Constants.Chassis.AXIS_kF
+import frc.robot.Constants.Chassis.AXIS_kI
+import frc.robot.Constants.Chassis.AXIS_kP
+import frc.robot.Constants.Chassis.DRIVE_kD
+import frc.robot.Constants.Chassis.DRIVE_kF
+import frc.robot.Constants.Chassis.DRIVE_kI
+import frc.robot.Constants.Chassis.DRIVE_kP
 import frc.robot.Constants.Chassis.DRIVING_RATIO
+import frc.robot.Constants.Chassis.STEERING_RATIO
 import frc.robot.Constants.Chassis.SWERVE_FORWARD_SPEED_MAX
 import frc.robot.Constants.Chassis.SWERVE_ROT_SPEED_MAX
 import frc.robot.Constants.Chassis.SWERVE_STRAFE_SPEED_MAX
 import frc.robot.Constants.Chassis.TRACK_LENGTH_METERS
 import frc.robot.Constants.Chassis.TRACK_WIDTH_METERS
 import frc.robot.Constants.Chassis.WHEEL_RADIUS_METERS
-import frc.robot.commands.chassis.ChassisRunJoystick
 import frc.robot.commands.chassis.ChassisRunSwerve
 import frc.robot.fusion.motion.*
 import kotlin.math.*
@@ -31,48 +39,72 @@ object Chassis : SubsystemBase() { // Start by defining motors
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
+        control(
+                FPIDConfig(0.0, 0.1, 0.0, 0.0)
+        )
     }
     private val talonFXBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_L, "talonFXBackLeft", MotorModel.TalonFX)).apply {
         setInverted(TalonFXInvertType.CounterClockwise)
         configNeutralDeadband(0.05)
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         selectedSensorPosition = 0
+        control(
+                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+        )
     }
     private val talonFXFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_F_R, "talonFXFrontRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.CounterClockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
+        control(
+                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+        )
     }
     private val talonFXBackRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_R, "talonFXBackRight", MotorModel.TalonFX)).apply {
         setInverted(TalonFXInvertType.CounterClockwise)
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
+        control(
+                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+        )
     }
     private val axisControllerFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_L, "axisFrontLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
+        control(
+                FPIDConfig(0.0, 0.2, 0.0, 0.0)
+        )
     }
     private val axisControllerBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_L, "axisBackLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
+        control(
+                FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
+        )
     }
     private val axisControllerFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_R, "axisFrontRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
+        control(
+                FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
+        )
     }
     private val axisControllerBackRight = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_R, "axisBackRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
+        control(
+                FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
+        )
     }
 
 
@@ -193,6 +225,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         speeds.replaceAll { s -> s*DRIVING_RATIO } // account for driving ratio
 
         angles.replaceAll { a -> 2048*a/(2*PI) } // to ticks
+        speeds.replaceAll { a -> a* STEERING_RATIO } // account for steering ratio
 
         var outputs = listOf(angleFrontLeft, speedFrontLeft, angleBackLeft, speedBackLeft, angleFrontRight, speedFrontRight
         , angleBackRight, speedBackRight)

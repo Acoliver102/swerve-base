@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.RamseteCommand
 import edu.wpi.first.wpilibj2.command.button.JoystickButton
+import frc.robot.commands.autonomous.AutonomousSad
+import frc.robot.commands.test.TestCommand
 
 
 import frc.robot.subsystems.Chassis
@@ -42,6 +44,7 @@ class RobotContainer {
 
     private var mAutoCommandChooser: SendableChooser<Command> = SendableChooser()
 
+    val mAutonomousSad = AutonomousSad()
 
 
     /**
@@ -62,7 +65,13 @@ class RobotContainer {
      * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     fun configureButtonBindings() {
+        JoystickButton(Controls.controller, XboxController.Button.kA.value)
+                .whenPressed(TestCommand())
+    }
 
+    fun getAutonomousCommand(): Command {
+        // Return the selected command
+        return mAutonomousSad
     }
 
 

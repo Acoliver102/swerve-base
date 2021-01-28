@@ -25,10 +25,25 @@ object Constants {
     }
 
     object Chassis {
-        const val ID_TALONFX_F_L = 11
-        const val ID_TALONFX_B_L = 13
-        const val ID_TALONFX_F_R = 10
-        const val ID_TALONFX_B_R = 12
+        const val ID_TALONFX_F_L = 3
+        const val ID_TALONFX_B_L = 2
+        const val ID_TALONFX_F_R = 7
+        const val ID_TALONFX_B_R = 0
+
+        const val ID_AXIS_F_L = 4
+        const val ID_AXIS_B_L = 6
+        const val ID_AXIS_F_R = 1
+        const val ID_AXIS_B_R = 5
+
+        const val DRIVE_kF = 0.0
+        const val DRIVE_kP = 0.1
+        const val DRIVE_kI = 0.0
+        const val DRIVE_kD = 0.0
+
+        const val AXIS_kF = 0.0
+        const val AXIS_kP = 0.2
+        const val AXIS_kI = 0.0
+        const val AXIS_kD = 0.0
 
         const val STEERING_RATIO = 12.8
         const val DRIVING_RATIO = 6.86
