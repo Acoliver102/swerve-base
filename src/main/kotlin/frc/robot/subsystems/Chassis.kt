@@ -4,12 +4,6 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType
 import com.kauailabs.navx.frc.AHRS
 import edu.wpi.first.wpilibj.SPI
-import edu.wpi.first.wpilibj.drive.DifferentialDrive
-import edu.wpi.first.wpilibj.geometry.Pose2d
-import edu.wpi.first.wpilibj.geometry.Rotation2d
-import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry
-import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.Constants
 import frc.robot.Constants.Chassis.AXIS_kD
@@ -28,9 +22,9 @@ import frc.robot.Constants.Chassis.SWERVE_STRAFE_SPEED_MAX
 import frc.robot.Constants.Chassis.TRACK_LENGTH_METERS
 import frc.robot.Constants.Chassis.TRACK_WIDTH_METERS
 import frc.robot.Constants.Chassis.WHEEL_RADIUS_METERS
-import frc.robot.commands.chassis.ChassisRunBasic
 import frc.robot.commands.chassis.ChassisRunSwerve
 import frc.robot.fusion.motion.*
+import mu.KotlinLogging
 import kotlin.math.*
 
 object Chassis : SubsystemBase() { // Start by defining motors
@@ -38,77 +32,78 @@ object Chassis : SubsystemBase() { // Start by defining motors
     private val talonFXFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_F_L, "talonFXFrontLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
-        configNeutralDeadband(0.05)
+        configNeutralDeadband(0.01)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD),
                 DutyCycleConfig(0.1)
         )
+        configPID(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
     }
     private val talonFXBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_L, "talonFXBackLeft", MotorModel.TalonFX)).apply {
         setInverted(TalonFXInvertType.CounterClockwise)
-        configNeutralDeadband(0.05)
+        configNeutralDeadband(0.01)
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD),
                 DutyCycleConfig(0.1)
         )
+        configPID(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
     }
     private val talonFXFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_F_R, "talonFXFrontRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.CounterClockwise)
-        configNeutralDeadband(0.05)
+        configNeutralDeadband(0.01)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD),
                 DutyCycleConfig(0.1)
         )
+        configPID(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
     }
     private val talonFXBackRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_R, "talonFXBackRight", MotorModel.TalonFX)).apply {
         setInverted(TalonFXInvertType.CounterClockwise)
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
-        configNeutralDeadband(0.05)
+        configNeutralDeadband(0.01)
         selectedSensorPosition = 0
         control(
-                FPIDConfig(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD),
                 DutyCycleConfig(0.1)
         )
+        configPID(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
     }
     private val axisControllerFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_L, "axisFrontLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
-        configNeutralDeadband(0.05)
+        configNeutralDeadband(0.01)
         selectedSensorPosition = 0
-        control(
-                FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
-        )
+        configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
     }
     private val axisControllerBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_L, "axisBackLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
-        control(
-                FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
-        )
+        configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
     }
     private val axisControllerFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_R, "axisFrontRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
-        control(
-                FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
-        )
+        configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
     }
     private val axisControllerBackRight = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_R, "axisBackRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
-        control(FPIDConfig(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD))
+        configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
     }
+
+    private var prevAngleFL = 0.0
+    private var prevAngleBL = 0.0
+    private var prevAngleFR = 0.0
+    private var prevAngleBR = 0.0
+
+    private var switch_status = false
 
 
     // wheel position sensor sets
@@ -130,6 +125,9 @@ object Chassis : SubsystemBase() { // Start by defining motors
         ahrs.reset()
     }
 
+    fun resetMotorEncoder() {
+        axisControllerFrontLeft.selectedSensorPosition = 0
+    }
 
 
 
@@ -153,12 +151,35 @@ object Chassis : SubsystemBase() { // Start by defining motors
     }
 
     fun chassisBasic() {
-        talonFXFrontLeft.control(ControlMode.DutyCycle)
-        talonFXFrontRight.control(ControlMode.DutyCycle)
-        talonFXBackLeft.control(ControlMode.DutyCycle)
-        talonFXBackRight.control(ControlMode.DutyCycle)
+        talonFXFrontLeft.workaroundRunVelocity(266252.0)
     }
 
+    fun reverseCheck(angle: Double, encodeVal: Double): Boolean {
+        var mAngle = angle
+        var mEncodeValue = encodeVal
+
+        return(abs(mAngle - mEncodeValue) < abs(PI + mAngle - mEncodeValue))
+
+
+    }
+
+    fun atanClamp(theta: Double, center: Double): Double {
+        var atanOriginal = atan(theta)
+        val upperBound = center + PI/2
+        val lowerBound = center - PI/2
+        var temp = 0.0
+
+        if (atanOriginal > upperBound) {
+            temp = atanOriginal - PI
+        } else if (atanOriginal < upperBound) {
+            temp = atanOriginal + PI
+        } else {
+            temp = atanOriginal
+        }
+
+        return temp
+
+    }
 
 
     /** SWERVE DRIVE EXPLANATION:
@@ -198,25 +219,38 @@ object Chassis : SubsystemBase() { // Start by defining motors
         var forward_speed = forward_input*SWERVE_FORWARD_SPEED_MAX
         var strafe_speed = strafe_input*SWERVE_STRAFE_SPEED_MAX
         var rot_speed =  rot_input* SWERVE_ROT_SPEED_MAX
+        var encAngleFL = axisControllerFrontLeft.workaroundGetPosition()/STEERING_RATIO/2048*(2*PI)
 
-        val alpha = atan(TRACK_LENGTH_METERS / TRACK_WIDTH_METERS)/2
+
+
+
+        val alpha = atan(TRACK_LENGTH_METERS / TRACK_WIDTH_METERS)
+        var coeff = alpha/PI
+//        KotlinLogging.logger("Angle").info {coeff}
         val distance_to_wheel = sqrt((TRACK_LENGTH_METERS).pow(2) + TRACK_WIDTH_METERS.pow(2))/2
         var rotation_added_speed = rot_speed*distance_to_wheel
 
-        var angleFrontLeft = atan((rotation_added_speed* sin(alpha) - strafe_speed)/(forward_speed -
-                rotation_added_speed* cos(alpha)))
-        var speedFrontLeft = ((forward_speed - rotation_added_speed* cos(alpha)).pow(2) + (rotation_added_speed* sin(alpha)
-                - strafe_speed).pow(2)).pow(1/2)
+
+
+        var forwardSpeedFL = forward_speed - rotation_added_speed*cos(alpha)
+        var strafeSpeedFL = strafe_speed - rotation_added_speed*sin(alpha)
+        var speedFrontLeft = sqrt(forwardSpeedFL.pow(2) + strafeSpeedFL.pow(2))
+        var angleFrontLeft = atanClamp(strafeSpeedFL/forwardSpeedFL, encAngleFL)
+
 
         var angleBackLeft = atan((-rotation_added_speed* sin(alpha) - strafe_speed)/(forward_speed -
                 rotation_added_speed* cos(alpha)))
-        var speedBackLeft = ((forward_speed - rotation_added_speed* cos(alpha)).pow(2) + (-rotation_added_speed* sin(alpha)
-                - strafe_speed).pow(2)).pow(1/2)
+        var forwardSpeedBL = forward_speed - rotation_added_speed*sin(alpha)
+        var strafeSpeedBL = strafe_speed + rotation_added_speed*cos(alpha)
+        var speedBackLeft = sqrt(forwardSpeedBL.pow(2) + strafeSpeedBL.pow(2))
 
         var angleFrontRight = atan((rotation_added_speed*sin(alpha) - strafe_speed)/(rotation_added_speed*cos(alpha)
                 + forward_speed))
+
         var speedFrontRight = ((rotation_added_speed*sin(alpha) - strafe_speed).pow(2) + (rotation_added_speed*cos(alpha)
                 + forward_speed).pow(2)).pow(1/2)
+
+//        KotlinLogging.logger("Output Speed").info {speedFrontLeft}
 
         var angleBackRight = atan((-rotation_added_speed*sin(alpha) - strafe_speed)/(rotation_added_speed*cos(alpha)
                 + forward_speed))
@@ -231,14 +265,46 @@ object Chassis : SubsystemBase() { // Start by defining motors
         // Conversions
 
         speeds.replaceAll { s -> s/WHEEL_RADIUS_METERS } // to rad/s
-        speeds.replaceAll { s -> 2048*s/(2*PI) } // to ticks/s
+        speeds.replaceAll { s -> 204.8*s/(2*PI) } // to ticks/100 ms
         speeds.replaceAll { s -> s*DRIVING_RATIO } // account for driving ratio
 
-        angles.replaceAll { a -> 2048*a/(2*PI) } // to ticks
-        speeds.replaceAll { a -> a* STEERING_RATIO } // account for steering ratio
+        val driveConstant = 204.8/(2*PI)*DRIVING_RATIO/WHEEL_RADIUS_METERS
+
+        speedFrontLeft *= driveConstant
+        speedBackLeft *= driveConstant
+        speedFrontRight *= driveConstant
+        speedBackRight *= driveConstant
+
+        var angleConstant = 2048/(2*PI)*STEERING_RATIO
+
+        val diffCoeff = (angleFrontLeft - prevAngleFL)/PI
+
+        if (forward_speed+strafe_speed+rotation_added_speed < 0.05) {angleConstant = 0.0}
+
+        KotlinLogging.logger("Angle Diff").info {encAngleFL/PI}
+
+        var rawEnc = axisControllerFrontLeft.workaroundGetPosition()
+
+        var excessRots = (rawEnc - rawEnc%2400)/2400
+
+        KotlinLogging.logger("Extra Rotations").info {excessRots}
+
+//        angleFrontLeft += excessRots*2*PI
+
+
+        angleFrontLeft *= angleConstant
+        angleBackLeft *= angleConstant
+        angleFrontRight *= angleConstant
+        angleBackRight *= angleConstant
+
+//        KotlinLogging.logger("Output Angle").info {angleFrontLeft}
 
         var outputs = listOf(angleFrontLeft, speedFrontLeft, angleBackLeft, speedBackLeft, angleFrontRight, speedFrontRight
         , angleBackRight, speedBackRight)
+
+//        for (o in outputs) {
+//            KotlinLogging.logger("Outputs").info { o.toString() }
+//        }
 
         return outputs
 
@@ -246,31 +312,31 @@ object Chassis : SubsystemBase() { // Start by defining motors
 
     fun runSwerveJoystick(lStickYAxis: Double, lStickXAxis: Double, rStickXAxis: Double) {
         val settings = Chassis.swerveDriveMath(lStickYAxis, lStickXAxis, rStickXAxis)
+//        KotlinLogging.logger("Swerve Test").info {settings[1]}
 
-        var angleFL = settings.get(0)
-        axisControllerFrontLeft.control(PositionConfig(angleFL.toInt()))
-        axisControllerFrontLeft.control(ControlMode.Position)
-        var speedFL = settings.get(1)
-        talonFXFrontLeft.control(VelocityConfig(speedFL.toInt()))
-        talonFXFrontLeft.control(ControlMode.Velocity)
-        var angleBL = settings.get(2)
-        axisControllerBackLeft.control(PositionConfig(angleBL.toInt()))
-        axisControllerBackLeft.control(ControlMode.Position)
-        var speedBL = settings.get(3)
-        talonFXBackLeft.control(VelocityConfig(speedBL.toInt()))
-        talonFXBackLeft.control(ControlMode.Velocity)
-        var angleFR = settings.get(4)
-        axisControllerFrontRight.control(PositionConfig(angleFR.toInt()))
-        axisControllerFrontRight.control(ControlMode.Position)
-        var speedFR = settings.get(5)
-        talonFXFrontRight.control(VelocityConfig(speedFR.toInt()))
-        talonFXFrontRight.control(ControlMode.Velocity)
-        var angleBR = settings.get(6)
-        axisControllerBackRight.control(PositionConfig(angleBR.toInt()))
-        axisControllerBackRight.control(ControlMode.Position)
-        var speedBR = settings.get(7)
-        talonFXBackRight.control(VelocityConfig(speedBR.toInt()))
-        talonFXBackRight.control(ControlMode.Velocity)
+        var angleFL = settings[0]
+//        KotlinLogging.logger("Angle Test").info {settings[0]}
+        axisControllerFrontLeft.workaroundRunPosition(angleFL)
+        var speedFL = settings[1]
+        talonFXFrontLeft.workaroundRunVelocity(speedFL)
+//        var angleBL = settings[2]
+//        axisControllerBackLeft.control(PositionConfig(angleBL.toInt()))
+//        axisControllerBackLeft.control(ControlMode.Position)
+//        var speedBL = settings[3]
+//        talonFXBackLeft.control(VelocityConfig(speedBL.toInt()))
+//        talonFXBackLeft.control(ControlMode.Velocity)
+//        var angleFR = settings[4]
+//        axisControllerFrontRight.control(PositionConfig(angleFR.toInt()))
+//        axisControllerFrontRight.control(ControlMode.Position)
+//        var speedFR = settings[5]
+//        talonFXFrontRight.control(VelocityConfig(speedFR.toInt()))
+//        talonFXFrontRight.control(ControlMode.Velocity)
+//        var angleBR = settings[6]
+//        axisControllerBackRight.control(PositionConfig(angleBR.toInt()))
+//        axisControllerBackRight.control(ControlMode.Position)
+//        var speedBR = settings[7]
+//        talonFXBackRight.control(VelocityConfig(speedBR.toInt()))
+//        talonFXBackRight.control(ControlMode.Velocity)
 //
 
     }

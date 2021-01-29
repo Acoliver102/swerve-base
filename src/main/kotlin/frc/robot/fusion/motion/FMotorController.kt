@@ -1,5 +1,6 @@
 package frc.robot.fusion.motion
 
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode
 import com.ctre.phoenix.motorcontrol.ControlMode as CTREControlMode
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX
@@ -161,16 +162,16 @@ interface FCTREMotor : Sendable, FMotorController<BaseMotorController> { // Runn
         when (motionCharacteristics.controlMode) {
             ControlMode.Disabled -> motor.set(CTREControlMode.Disabled, 0.0) // Stop motor
             ControlMode.Position, ControlMode.Velocity -> { // Run PID to pos/vel
-                motionCharacteristics.fpidConfig?.let {
-                    motor.run {
-                        selectProfileSlot(0, 0)
-
-                        config_kF(0, it.f)
-                        config_kP(0, it.p)
-                        config_kI(0, it.i)
-                        config_kD(0, it.d)
-                    }
-                } ?: throw IllegalStateException("Tried to configure FPID with null configuration!")
+//                motionCharacteristics.fpidConfig?.let {
+//                    motor.run {
+//                        selectProfileSlot(0, 0)
+//
+//                        config_kF(0, it.f)
+//                        config_kP(0, it.p)
+//                        config_kI(0, it.i)
+//                        config_kD(0, it.d)
+//                    }
+//                } ?: throw IllegalStateException("Tried to configure FPID with null configuration!")
 
                 if (motionCharacteristics.controlMode == ControlMode.Position) { // Run as postion
                     motor.set(CTREControlMode.Position, motionCharacteristics.positionConfig!!.targetPosition.toDouble())
@@ -197,6 +198,8 @@ interface FCTREMotor : Sendable, FMotorController<BaseMotorController> { // Runn
                 } ?: throw IllegalStateException("Tried to configure Follower with null configuration!")
             }
         }
+
+
     }
 
     override fun initSendable(builder: SendableBuilder?) { // Dashboard
@@ -230,6 +233,27 @@ class FTalonFX(id: MotorID) : WPI_TalonFX(id.id), FCTREMotor { // Run Talon of C
 
         builder!!.addDoubleProperty("SensorVelocity", { this.selectedSensorVelocity.toDouble() }, { })
         builder.addDoubleProperty("SensorPosition", { this.selectedSensorPosition.toDouble() }, { })
+    }
+
+    fun configPID(kF: Double, kP: Double, kI: Double, kD: Double) {
+        this.selectProfileSlot(0, 0)
+
+        this.config_kF(0, kF)
+        this.config_kP(0, kP)
+        this.config_kI(0, kI)
+        this.config_kD(0, kD)
+    }
+
+    fun workaroundRunVelocity(velo: Double) {
+        this.set(TalonFXControlMode.Velocity, velo)
+    }
+
+    fun workaroundRunPosition(pos: Double) {
+        this.set(TalonFXControlMode.Position, pos)
+    }
+
+    fun workaroundGetPosition(): Int {
+        return this.selectedSensorPosition
     }
 
     init {

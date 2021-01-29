@@ -25,10 +25,12 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand
 import edu.wpi.first.wpilibj2.command.button.JoystickButton
 import frc.robot.commands.autonomous.AutonomousSad
 import frc.robot.commands.chassis.ChassisRunBasic
+import frc.robot.commands.chassis.EncoderReset
 import frc.robot.commands.test.TestCommand
 
 
 import frc.robot.subsystems.Chassis
+import javax.naming.ldap.Control
 import javax.sql.XAConnectionBuilder
 
 
@@ -72,6 +74,8 @@ class RobotContainer {
                 .whenPressed(TestCommand())
         JoystickButton(Controls.controller, XboxController.Button.kBumperRight.value)
                 .whenPressed(ChassisRunBasic())
+        JoystickButton(Controls.controller, XboxController.Button.kA.value)
+                .whenPressed(EncoderReset())
     }
 
     fun getAutonomousCommand(): Command {
