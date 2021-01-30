@@ -79,8 +79,14 @@ class RobotContainer {
     }
 
     fun getAutonomousCommand(): Command {
-        // Return the selected command
-        return mAutonomousSad
+       String trajectoryJSON = "paths/Unnamed_0.wpilib.json";
+        Trajectory trajectory = new Trajectory();
+        try {
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+            trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+        }   catch (IOException ex) {
+        DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+      } 
     }
 
 
