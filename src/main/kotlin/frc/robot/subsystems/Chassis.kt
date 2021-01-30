@@ -368,10 +368,6 @@ object Chassis : SubsystemBase() { // Start by defining motors
 //        KotlinLogging.logger("Swerve Test").info {settings[1]}
 
         var angleFL = settings[0]
-//        KotlinLogging.logger("Angle Test").info {settings[0]}
-//        if (settings[1] < 0.01) {
-//            a
-//        }
         axisControllerFrontLeft.workaroundRunPosition(angleFL)
         var speedFL = settings[1]
         talonFXFrontLeft.workaroundRunVelocity(speedFL)

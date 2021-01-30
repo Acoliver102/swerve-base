@@ -256,6 +256,8 @@ class FTalonFX(id: MotorID) : WPI_TalonFX(id.id), FCTREMotor { // Run Talon of C
         return this.selectedSensorPosition
     }
 
+
+
     init {
         configFactoryDefault()
     }
