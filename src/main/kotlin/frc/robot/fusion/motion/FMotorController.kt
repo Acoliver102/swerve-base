@@ -1,5 +1,6 @@
 package frc.robot.fusion.motion
 
+import com.ctre.phoenix.motorcontrol.NeutralMode
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode
 import com.ctre.phoenix.motorcontrol.ControlMode as CTREControlMode
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController
@@ -254,6 +255,10 @@ class FTalonFX(id: MotorID) : WPI_TalonFX(id.id), FCTREMotor { // Run Talon of C
 
     fun workaroundGetPosition(): Int {
         return this.selectedSensorPosition
+    }
+
+    fun workaroundSetNeutral() {
+        this.setNeutralMode(NeutralMode.Coast)
     }
 
 

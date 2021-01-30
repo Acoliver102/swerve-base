@@ -53,8 +53,8 @@ object Constants {
         const val WHEEL_RADIUS_METERS = 0.0508
 
 
-        const val SWERVE_FORWARD_SPEED_MAX = 1.0 // meters/Sec
-        const val SWERVE_STRAFE_SPEED_MAX = 1.0
+        const val SWERVE_FORWARD_SPEED_MAX = 0.5 // meters/Sec
+        const val SWERVE_STRAFE_SPEED_MAX = 0.5
         const val SWERVE_ROT_SPEED_MAX = 1.0 // rad/sec
 
     }

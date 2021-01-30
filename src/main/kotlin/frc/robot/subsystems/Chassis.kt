@@ -38,6 +38,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
                 DutyCycleConfig(0.1)
         )
         configPID(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+        workaroundSetNeutral()
     }
     private val talonFXBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_L, "talonFXBackLeft", MotorModel.TalonFX)).apply {
         setInverted(TalonFXInvertType.CounterClockwise)
@@ -48,6 +49,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
                 DutyCycleConfig(0.1)
         )
         configPID(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+        workaroundSetNeutral()
     }
     private val talonFXFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_F_R, "talonFXFrontRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
@@ -58,6 +60,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
                 DutyCycleConfig(0.1)
         )
         configPID(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+        workaroundSetNeutral()
     }
     private val talonFXBackRight = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_B_R, "talonFXBackRight", MotorModel.TalonFX)).apply {
         setInverted(TalonFXInvertType.CounterClockwise)
@@ -68,6 +71,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
                 DutyCycleConfig(0.1)
         )
         configPID(DRIVE_kF, DRIVE_kP, DRIVE_kI, DRIVE_kD)
+        workaroundSetNeutral()
     }
     private val axisControllerFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_L, "axisFrontLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
