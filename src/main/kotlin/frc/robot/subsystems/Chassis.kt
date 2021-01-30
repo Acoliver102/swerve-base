@@ -203,7 +203,11 @@ object Chassis : SubsystemBase() { // Start by defining motors
         var forward_speed = forward_input*SWERVE_FORWARD_SPEED_MAX
         var strafe_speed = strafe_input*SWERVE_STRAFE_SPEED_MAX
         var rot_speed =  rot_input* SWERVE_ROT_SPEED_MAX
+
         var encAngleFL = axisControllerFrontLeft.workaroundGetPosition()/STEERING_RATIO/2048*(2*PI)
+        var encAngleBL = axisControllerBackLeft.workaroundGetPosition()/STEERING_RATIO/2048*(2*PI)
+        var encAngleFR = axisControllerFrontRight.workaroundGetPosition()/STEERING_RATIO/2048*(2*PI)
+        var encAngleBR = axisControllerBackRight.workaroundGetPosition()/STEERING_RATIO/2048*(2*PI)
 
 
 
@@ -221,25 +225,22 @@ object Chassis : SubsystemBase() { // Start by defining motors
         var speedFrontLeft = sqrt(forwardSpeedFL.pow(2) + strafeSpeedFL.pow(2))
         var angleFrontLeft = atan2(strafeSpeedFL, forwardSpeedFL)
 
-
-        var angleBackLeft = atan((-rotation_added_speed* sin(alpha) - strafe_speed)/(forward_speed -
-                rotation_added_speed* cos(alpha)))
         var forwardSpeedBL = forward_speed - rotation_added_speed*sin(alpha)
         var strafeSpeedBL = strafe_speed + rotation_added_speed*cos(alpha)
         var speedBackLeft = sqrt(forwardSpeedBL.pow(2) + strafeSpeedBL.pow(2))
+        var angleBackLeft = atan2(strafeSpeedBL, forwardSpeedBL)
 
-        var angleFrontRight = atan((rotation_added_speed*sin(alpha) - strafe_speed)/(rotation_added_speed*cos(alpha)
-                + forward_speed))
-
-        var speedFrontRight = ((rotation_added_speed*sin(alpha) - strafe_speed).pow(2) + (rotation_added_speed*cos(alpha)
-                + forward_speed).pow(2)).pow(1/2)
+        var forwardSpeedFR = forward_speed + rotation_added_speed*sin(alpha)
+        var strafeSpeedFR = strafe_speed - rotation_added_speed*cos(alpha)
+        var speedFrontRight = sqrt(forwardSpeedFR.pow(2) + strafeSpeedFR.pow(2))
+        var angleFrontRight = atan2(strafeSpeedFR, forwardSpeedFR)
 
 //        KotlinLogging.logger("Output Speed").info {speedFrontLeft}
 
-        var angleBackRight = atan((-rotation_added_speed*sin(alpha) - strafe_speed)/(rotation_added_speed*cos(alpha)
-                + forward_speed))
-        var speedBackRight = ((-rotation_added_speed*sin(alpha) - strafe_speed).pow(2) + (rotation_added_speed*cos(alpha)
-                + forward_speed).pow(2)).pow(1/2)
+        var forwardSpeedBR = forward_speed + rotation_added_speed*cos(alpha)
+        var strafeSpeedBR = strafe_speed + rotation_added_speed*sin(alpha)
+        var speedBackRight = sqrt(forwardSpeedBR.pow(2) + strafeSpeedBR.pow(2))
+        var angleBackRight = atan2(strafeSpeedBR, forwardSpeedBR)
 
         // TODO : Convert m/s -> wheel speeds, set up PID for axis motors
 
@@ -264,26 +265,75 @@ object Chassis : SubsystemBase() { // Start by defining motors
         if (angleFrontLeft < 0) {
             angleFrontLeft += 2 * PI
         }
-
-        var encTrueValue = encAngleFL%(2*PI)
-
-        KotlinLogging.logger("ETV").info {encTrueValue/(2*PI)*360}
-
-        var dTheta = angleFrontLeft - encTrueValue
-
-        if (abs(-2*PI + dTheta) < abs(dTheta)) {
-            if (abs(-2*PI + dTheta) < abs(2*PI + dTheta)) {
-                dTheta = -2*PI + dTheta
-            } else {
-                dTheta = 2*PI + dTheta
-            }
-        } else if (abs(dTheta) > abs(2*PI + dTheta)) {
-            dTheta = 2*PI + dTheta
+        if (angleBackLeft < 0) {
+            angleBackLeft += 2 * PI
+        }
+        if (angleFrontRight < 0) {
+            angleFrontRight += 2 * PI
+        }
+        if (angleBackRight < 0) {
+            angleBackRight += 2 * PI
         }
 
-        KotlinLogging.logger("DTheta").info {dTheta/(2*PI)*360}
 
-        angleFrontLeft = encAngleFL + dTheta
+        var encTrueValueFL = encAngleFL%(2*PI)
+        var encTrueValueBL = encAngleBL%(2*PI)
+        var encTrueValueFR = encAngleFR%(2*PI)
+        var encTrueValueBR = encAngleBR%(2*PI)
+
+        KotlinLogging.logger("ETV").info {encTrueValueFL/(2*PI)*360}
+
+        var dThetaFL = angleFrontLeft - encTrueValueFL
+        var dThetaBL = angleBackLeft - encTrueValueBL
+        var dThetaFR = angleFrontRight - encTrueValueFR
+        var dThetaBR = angleBackRight - encTrueValueBR
+
+        if (abs(-2*PI + dThetaFL) < abs(dThetaFL)) {
+            if (abs(-2*PI + dThetaFL) < abs(2*PI + dThetaFL)) {
+                dThetaFL = -2*PI + dThetaFL
+            } else {
+                dThetaFL = 2*PI + dThetaFL
+            }
+        } else if (abs(dThetaFL) > abs(2*PI + dThetaFL)) {
+            dThetaFL = 2*PI + dThetaFL
+        }
+
+        if (abs(-2*PI + dThetaBL) < abs(dThetaBL)) {
+            if (abs(-2*PI + dThetaBL) < abs(2*PI + dThetaBL)) {
+                dThetaBL = -2*PI + dThetaBL
+            } else {
+                dThetaBL = 2*PI + dThetaBL
+            }
+        } else if (abs(dThetaBL) > abs(2*PI + dThetaBL)) {
+            dThetaBL = 2*PI + dThetaBL
+        }
+
+        if (abs(-2*PI + dThetaFR) < abs(dThetaFR)) {
+            if (abs(-2*PI + dThetaFR) < abs(2*PI + dThetaFR)) {
+                dThetaFR = -2*PI + dThetaFR
+            } else {
+                dThetaFR = 2*PI + dThetaFR
+            }
+        } else if (abs(dThetaFR) > abs(2*PI + dThetaFR)) {
+            dThetaFR = 2*PI + dThetaFR
+        }
+
+        if (abs(-2*PI + dThetaBR) < abs(dThetaBR)) {
+            if (abs(-2*PI + dThetaBR) < abs(2*PI + dThetaBR)) {
+                dThetaBR = -2*PI + dThetaBR
+            } else {
+                dThetaBR = 2*PI + dThetaBR
+            }
+        } else if (abs(dThetaBR) > abs(2*PI + dThetaBR)) {
+            dThetaBR = 2*PI + dThetaBR
+        }
+
+        KotlinLogging.logger("DTheta").info {dThetaFL/(2*PI)*360}
+
+        angleFrontLeft = encAngleFL + dThetaFL
+        angleBackLeft = encAngleBL + dThetaBL
+        angleFrontRight = encAngleFR + dThetaFR
+        angleBackRight = encAngleBR + dThetaBR
 
         KotlinLogging.logger("Angle Passed").info {angleFrontLeft/(2*PI)*360}
 
@@ -322,24 +372,18 @@ object Chassis : SubsystemBase() { // Start by defining motors
         axisControllerFrontLeft.workaroundRunPosition(angleFL)
         var speedFL = settings[1]
         talonFXFrontLeft.workaroundRunVelocity(speedFL)
-//        var angleBL = settings[2]
-//        axisControllerBackLeft.control(PositionConfig(angleBL.toInt()))
-//        axisControllerBackLeft.control(ControlMode.Position)
-//        var speedBL = settings[3]
-//        talonFXBackLeft.control(VelocityConfig(speedBL.toInt()))
-//        talonFXBackLeft.control(ControlMode.Velocity)
-//        var angleFR = settings[4]
-//        axisControllerFrontRight.control(PositionConfig(angleFR.toInt()))
-//        axisControllerFrontRight.control(ControlMode.Position)
-//        var speedFR = settings[5]
-//        talonFXFrontRight.control(VelocityConfig(speedFR.toInt()))
-//        talonFXFrontRight.control(ControlMode.Velocity)
-//        var angleBR = settings[6]
-//        axisControllerBackRight.control(PositionConfig(angleBR.toInt()))
-//        axisControllerBackRight.control(ControlMode.Position)
-//        var speedBR = settings[7]
-//        talonFXBackRight.control(VelocityConfig(speedBR.toInt()))
-//        talonFXBackRight.control(ControlMode.Velocity)
+        var angleBL = settings[2]
+        axisControllerBackLeft.workaroundRunPosition(angleBL)
+        var speedBL = settings[3]
+        talonFXBackLeft.workaroundRunVelocity(speedBL)
+        var angleFR = settings[4]
+        axisControllerFrontRight.workaroundRunPosition(angleFR)
+        var speedFR = settings[5]
+        talonFXFrontRight.workaroundRunVelocity(speedFR)
+        var angleBR = settings[6]
+        axisControllerBackRight.workaroundRunPosition(angleBR)
+        var speedBR = settings[7]
+        talonFXBackRight.workaroundRunVelocity(speedBR)
 //
 
     }
