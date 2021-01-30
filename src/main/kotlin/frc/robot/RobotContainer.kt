@@ -7,37 +7,22 @@
 
 package frc.robot
 
+
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Filesystem
-import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.XboxController
-import edu.wpi.first.wpilibj.controller.PIDController
-import edu.wpi.first.wpilibj.controller.RamseteController
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward
-import edu.wpi.first.wpilibj.geometry.Pose2d
-import edu.wpi.first.wpilibj.geometry.Rotation2d
-import edu.wpi.first.wpilibj.geometry.Translation2d
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj.trajectory.Trajectory
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil
-import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint
 import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.RamseteCommand
 import edu.wpi.first.wpilibj2.command.button.JoystickButton
 import frc.robot.commands.autonomous.AutonomousSad
 import frc.robot.commands.chassis.ChassisRunBasic
 import frc.robot.commands.chassis.EncoderReset
 import frc.robot.commands.test.TestCommand
-
-
 import frc.robot.subsystems.Chassis
 import java.io.IOException
-import java.nio.file.Path
-import javax.naming.ldap.Control
-import javax.sql.XAConnectionBuilder
 
 
 /**
@@ -84,16 +69,17 @@ class RobotContainer {
                 .whenPressed(EncoderReset())
     }
 
-//    fun getAutonomousCommand(): Command {
-//       var trajectoryJSON = "paths/Unnamed_0.wpilib.json";
-//        var trajectory = Trajectory(trajectoryJSON)
-//        try {
-//            var trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-//            var trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-//        }   catch (ex: IOException) {
-//        DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-//      }
-//    }
+   fun getAutonomousCommand() {
+  //     trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+      try {
+          val trajectoryJSON = "paths/Unnamed_0.wpilib.json"
+          var trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+          var trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath)
+
+       }   catch (ex: IOException) {
+        DriverStation.reportError("Unable to open trajectory: trajectoryJSON", ex.getStackTrace());
+      }
+    }
 
 
 }
