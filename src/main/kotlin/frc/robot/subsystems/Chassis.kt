@@ -31,7 +31,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
     // Motor Controllers
     private val talonFXFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_TALONFX_F_L, "talonFXFrontLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
-        setInverted(TalonFXInvertType.Clockwise)
+        setInverted(TalonFXInvertType.CounterClockwise)
         configNeutralDeadband(0.01)
         selectedSensorPosition = 0
         control(
