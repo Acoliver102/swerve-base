@@ -163,23 +163,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
 
     }
 
-    fun atanClamp(theta: Double, center: Double): Double {
-        var atanOriginal = atan(theta)
-        val upperBound = center + PI/2
-        val lowerBound = center - PI/2
-        var temp = 0.0
 
-        if (atanOriginal > upperBound) {
-            temp = atanOriginal - PI
-        } else if (atanOriginal < upperBound) {
-            temp = atanOriginal + PI
-        } else {
-            temp = atanOriginal
-        }
-
-        return temp
-
-    }
 
 
     /** SWERVE DRIVE EXPLANATION:
@@ -235,7 +219,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         var forwardSpeedFL = forward_speed - rotation_added_speed*cos(alpha)
         var strafeSpeedFL = strafe_speed - rotation_added_speed*sin(alpha)
         var speedFrontLeft = sqrt(forwardSpeedFL.pow(2) + strafeSpeedFL.pow(2))
-        var angleFrontLeft = atanClamp(strafeSpeedFL/forwardSpeedFL, encAngleFL)
+        var angleFrontLeft = atan2(strafeSpeedFL, forwardSpeedFL)
 
 
         var angleBackLeft = atan((-rotation_added_speed* sin(alpha) - strafe_speed)/(forward_speed -
@@ -277,17 +261,36 @@ object Chassis : SubsystemBase() { // Start by defining motors
 
         var angleConstant = 2048/(2*PI)*STEERING_RATIO
 
-        val diffCoeff = (angleFrontLeft - prevAngleFL)/PI
+        if (angleFrontLeft < 0) {
+            angleFrontLeft += 2 * PI
+        }
 
-        if (forward_speed+strafe_speed+rotation_added_speed < 0.05) {angleConstant = 0.0}
+        var encTrueValue = encAngleFL%(2*PI)
 
-        KotlinLogging.logger("Angle Diff").info {encAngleFL/PI}
+        KotlinLogging.logger("ETV").info {encTrueValue/(2*PI)*360}
+
+        var dTheta = angleFrontLeft - encTrueValue
+
+        if (abs(-2*PI + dTheta) < abs(dTheta)) {
+            if (abs(-2*PI + dTheta) < abs(2*PI + dTheta)) {
+                dTheta = -2*PI + dTheta
+            } else {
+                dTheta = 2*PI + dTheta
+            }
+        } else if (abs(dTheta) > abs(2*PI + dTheta)) {
+            dTheta = 2*PI + dTheta
+        }
+
+        KotlinLogging.logger("DTheta").info {dTheta/(2*PI)*360}
+
+        angleFrontLeft = encAngleFL + dTheta
+
+        KotlinLogging.logger("Angle Passed").info {angleFrontLeft/(2*PI)*360}
+
 
         var rawEnc = axisControllerFrontLeft.workaroundGetPosition()
 
-        var excessRots = (rawEnc - rawEnc%2400)/2400
 
-        KotlinLogging.logger("Extra Rotations").info {excessRots}
 
 //        angleFrontLeft += excessRots*2*PI
 

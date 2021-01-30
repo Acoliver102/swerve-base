@@ -41,7 +41,7 @@ object Constants {
         const val DRIVE_kD = 0.0
 
         const val AXIS_kF = 0.0
-        const val AXIS_kP = 0.2
+        const val AXIS_kP = 0.15
         const val AXIS_kI = 0.0
         const val AXIS_kD = 0.0
 
