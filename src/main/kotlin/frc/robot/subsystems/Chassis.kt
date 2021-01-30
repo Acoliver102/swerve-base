@@ -72,7 +72,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
     private val axisControllerFrontLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_L, "axisFrontLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
         setInverted(TalonFXInvertType.Clockwise)
-        configNeutralDeadband(0.01)
+        configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
     }
@@ -369,6 +369,9 @@ object Chassis : SubsystemBase() { // Start by defining motors
 
         var angleFL = settings[0]
 //        KotlinLogging.logger("Angle Test").info {settings[0]}
+//        if (settings[1] < 0.01) {
+//            a
+//        }
         axisControllerFrontLeft.workaroundRunPosition(angleFL)
         var speedFL = settings[1]
         talonFXFrontLeft.workaroundRunVelocity(speedFL)
