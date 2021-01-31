@@ -1,6 +1,32 @@
 # swerve-base
 It's a base for a basic swerve drive.
 
+Verify build.gradle for dependancies in plguins and libraries
+
+    id "java"
+    id "edu.wpi.first.GradleRIO" version "2020.3.2"
+    id "org.jetbrains.kotlin.jvm" version "1.3.50"
+    id "org.jlleitschuh.gradle.ktlint" version "9.2.1"
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation 'io.github.microutils:kotlin-logging:1.7.8'
+    implementation 'org.slf4j:slf4j-simple:1.7.26'
+
+    implementation wpi.deps.wpilib()
+    nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
+    nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
+
+    implementation wpi.deps.vendor.java()
+    nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
+    nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
+
+    testImplementation 'junit:junit:4.12'
+
+    // Enable simulation gui support. Must check the box in vscode to enable support
+    // upon debugging
+    simulation wpi.deps.sim.gui(wpi.platforms.desktop, false)
+}
 
     /** SWERVE DRIVE EXPLANATION:
      *
