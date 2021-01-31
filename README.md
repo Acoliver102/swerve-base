@@ -60,13 +60,24 @@ dependencies {
      #Goals  make a class SwervelDrivetrainSim
      - add implementation to allow FRC Simulation to simulate motors which needs a custom physics simulation
      --Initialize stationary robot and set weight, acceleration, velocity_X,velocity_Y and angular velocity to zero and robot orientation
-     --- update in 0.1 second ( cycle Period) steps with nonslipping model summing wheel forces at center of mass/rotation
+     --- update in 0.02 second ( cycle Period) steps with nonslipping model summing wheel forces at center of mass/rotation
      --deltaOmega ~ (angular velocity * timeStep) = 
+     
+     using LinearSystemSim class. Subclasses override the UpdateX(x, u, dt)
      --deltaVelocityX
 Standard Java var names     
 vx: The velocity of the robot in the x (forward) direction.
 vy: The velocity of the robot in the y (sideways) direction. (Positive values mean the robot is moving to the left).
 omega: The angular velocity of the robot in radians per second.
+
+use inpout to motor control  as idea
+        var forward_speed = forward_input*SWERVE_FORWARD_SPEED_MAX
+        var strafe_speed = strafe_input*SWERVE_STRAFE_SPEED_MAX
+        var rot_speed =  rot_input* SWERVE_ROT_SPEED_MAX
+vx + d_strafe_speed/dt
+vy + d_forward_speed/dt
+omega + d_rot_speed/dt
+
 Pose2d: 
 
 inc onstants.kt
