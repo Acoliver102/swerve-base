@@ -141,6 +141,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
 
     init {
         defaultCommand = ChassisRunSwerve() // Set default state to run with joystick
+        this.resetHeading()
 
 //        Shuffleboard.getTab("Chassis").add(talonFXFrontRight)
 //        Shuffleboard.getTab("Chassis").add(talonFXFrontLeft)
@@ -155,7 +156,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
     }
 
     fun chassisBasic() {
-        talonFXFrontLeft.workaroundRunVelocity(266252.0)
+//        talonFXFrontLeft.workaroundRunVelocity(266252.0)
     }
 
     fun reverseCheck(angle: Double, encodeVal: Double): Boolean {
@@ -285,7 +286,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         var encTrueValueFR = encAngleFR%(2*PI)
         var encTrueValueBR = encAngleBR%(2*PI)
 
-        KotlinLogging.logger("ETV").info {encTrueValueFL/(2*PI)*360}
+
 
         var dThetaFL = angleFrontLeft - encTrueValueFL
         var dThetaBL = angleBackLeft - encTrueValueBL
@@ -332,14 +333,14 @@ object Chassis : SubsystemBase() { // Start by defining motors
             dThetaBR = 2*PI + dThetaBR
         }
 
-        KotlinLogging.logger("DTheta").info {dThetaFL/(2*PI)*360}
+
 
         angleFrontLeft = encAngleFL + dThetaFL
         angleBackLeft = encAngleBL + dThetaBL
         angleFrontRight = encAngleFR + dThetaFR
         angleBackRight = encAngleBR + dThetaBR
 
-        KotlinLogging.logger("Angle Passed").info {angleFrontLeft/(2*PI)*360}
+
 
 
         var rawEnc = axisControllerFrontLeft.workaroundGetPosition()
@@ -370,7 +371,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
     fun runSwerveJoystick(lStickYAxis: Double, lStickXAxis: Double, rStickXAxis: Double) {
         val settings = Chassis.swerveDriveMath(lStickYAxis, lStickXAxis, rStickXAxis)
 //        KotlinLogging.logger("Swerve Test").info {settings[1]}
-
+//
         var angleFL = settings[0]
         axisControllerFrontLeft.workaroundRunPosition(angleFL)
         var speedFL = settings[1]
@@ -387,6 +388,8 @@ object Chassis : SubsystemBase() { // Start by defining motors
         axisControllerBackRight.workaroundRunPosition(angleBR)
         var speedBR = settings[7]
         talonFXBackRight.workaroundRunVelocity(speedBR)
+
+        KotlinLogging.logger("NAVX Reading").info {this.heading}
 //
 
     }

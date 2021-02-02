@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton
 import frc.robot.commands.autonomous.AutonomousSad
 import frc.robot.commands.chassis.ChassisRunBasic
 import frc.robot.commands.chassis.EncoderReset
+import frc.robot.commands.test.ResetNAVX
 import frc.robot.commands.test.TestCommand
 import frc.robot.subsystems.Chassis
 import java.io.IOException
@@ -64,7 +65,7 @@ class RobotContainer {
         JoystickButton(Controls.controller, XboxController.Button.kB.value)
                 .whenPressed(TestCommand())
         JoystickButton(Controls.controller, XboxController.Button.kBumperRight.value)
-                .whenPressed(ChassisRunBasic())
+                .whenPressed(ResetNAVX())
         JoystickButton(Controls.controller, XboxController.Button.kA.value)
                 .whenPressed(EncoderReset())
     }
