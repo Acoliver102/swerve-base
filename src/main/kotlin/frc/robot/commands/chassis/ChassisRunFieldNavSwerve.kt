@@ -6,6 +6,7 @@ import frc.robot.Constants
 import frc.robot.Controls
 import frc.robot.subsystems.Chassis
 import mu.KotlinLogging
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -19,10 +20,10 @@ class ChassisRunFieldNavSwerve: CommandBase() {
 
     override fun execute() {
         Chassis.runSwerveJoystick(
-                Controls.controller.getRawAxis(1)*cos(Chassis.heading) - Controls.controller.
-                        getRawAxis(0)*sin(Chassis.heading),
-                -Controls.controller.getRawAxis(1)*sin(Chassis.heading) - Controls.controller.
-                        getRawAxis(0)*cos(Chassis.heading),
+                Controls.controller.getRawAxis(1)*cos(Chassis.heading/360*(2*PI)) + Controls.controller.
+                        getRawAxis(0)*sin(Chassis.heading/360*(2*PI)),
+                Controls.controller.getRawAxis(1)*sin(Chassis.heading/360*(2*PI)) - Controls.controller.
+                        getRawAxis(0)*cos(Chassis.heading/360*(2*PI)),
                 Controls.controller.getRawAxis(4)
         )
 //        KotlinLogging.logger("Swerver").info {"Working on it."}

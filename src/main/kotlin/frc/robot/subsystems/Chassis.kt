@@ -22,6 +22,7 @@ import frc.robot.Constants.Chassis.SWERVE_STRAFE_SPEED_MAX
 import frc.robot.Constants.Chassis.TRACK_LENGTH_METERS
 import frc.robot.Constants.Chassis.TRACK_WIDTH_METERS
 import frc.robot.Constants.Chassis.WHEEL_RADIUS_METERS
+import frc.robot.commands.chassis.ChassisRunFieldNavSwerve
 import frc.robot.commands.chassis.ChassisRunSwerve
 import frc.robot.fusion.motion.*
 import mu.KotlinLogging
@@ -79,6 +80,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
+        workaroundSetNeutral()
     }
     private val axisControllerBackLeft = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_L, "axisBackLeft", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
@@ -86,6 +88,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
+        workaroundSetNeutral()
     }
     private val axisControllerFrontRight = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_F_R, "axisFrontRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
@@ -93,6 +96,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
+        workaroundSetNeutral()
     }
     private val axisControllerBackRight = FTalonFX(MotorID(Constants.Chassis.ID_AXIS_B_R, "axisBackRight", MotorModel.TalonFX)).apply {
         configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor)
@@ -100,6 +104,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         configNeutralDeadband(0.05)
         selectedSensorPosition = 0
         configPID(AXIS_kF, AXIS_kP, AXIS_kI, AXIS_kD)
+        workaroundSetNeutral()
     }
 
     private var prevAngleFL = 0.0
@@ -123,7 +128,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
         calibrate() // motion sensor
     }
 
-    val heading: Double get() = ahrs.angle.IEEErem(360.0)
+    val heading: Double get() = -ahrs.angle.IEEErem(360.0)
 
     fun resetHeading() {
         ahrs.reset()
@@ -140,7 +145,7 @@ object Chassis : SubsystemBase() { // Start by defining motors
 
 
     init {
-        defaultCommand = ChassisRunSwerve() // Set default state to run with joystick
+        defaultCommand = ChassisRunFieldNavSwerve() // Set default state to run with joystick
         this.resetHeading()
 
 //        Shuffleboard.getTab("Chassis").add(talonFXFrontRight)
@@ -371,23 +376,35 @@ object Chassis : SubsystemBase() { // Start by defining motors
     fun runSwerveJoystick(lStickYAxis: Double, lStickXAxis: Double, rStickXAxis: Double) {
         val settings = Chassis.swerveDriveMath(lStickYAxis, lStickXAxis, rStickXAxis)
 //        KotlinLogging.logger("Swerve Test").info {settings[1]}
-//
-        var angleFL = settings[0]
-        axisControllerFrontLeft.workaroundRunPosition(angleFL)
-        var speedFL = settings[1]
-        talonFXFrontLeft.workaroundRunVelocity(speedFL)
-        var angleBL = settings[2]
-        axisControllerBackLeft.workaroundRunPosition(angleBL)
-        var speedBL = settings[3]
-        talonFXBackLeft.workaroundRunVelocity(speedBL)
-        var angleFR = settings[4]
-        axisControllerFrontRight.workaroundRunPosition(angleFR)
-        var speedFR = settings[5]
-        talonFXFrontRight.workaroundRunVelocity(speedFR)
-        var angleBR = settings[6]
-        axisControllerBackRight.workaroundRunPosition(angleBR)
-        var speedBR = settings[7]
-        talonFXBackRight.workaroundRunVelocity(speedBR)
+
+
+        if (max(max(settings[1], settings[3]),max(settings[5], settings[7])) < 120) {
+            axisControllerFrontLeft.workaroundRunVelocity(0.0)
+            axisControllerBackLeft.workaroundRunVelocity(0.0)
+            axisControllerFrontRight.workaroundRunVelocity(0.0)
+            axisControllerBackRight.workaroundRunVelocity(0.0)
+            talonFXFrontLeft.workaroundRunVelocity(0.0)
+            talonFXBackLeft.workaroundRunVelocity(0.0)
+            talonFXFrontRight.workaroundRunVelocity(0.0)
+            talonFXBackRight.workaroundRunVelocity(0.0)
+        } else {
+            var angleFL = settings[0]
+            axisControllerFrontLeft.workaroundRunPosition(angleFL)
+            var speedFL = settings[1]
+            talonFXFrontLeft.workaroundRunVelocity(speedFL)
+            var angleBL = settings[2]
+            axisControllerBackLeft.workaroundRunPosition(angleBL)
+            var speedBL = settings[3]
+            talonFXBackLeft.workaroundRunVelocity(speedBL)
+            var angleFR = settings[4]
+            axisControllerFrontRight.workaroundRunPosition(angleFR)
+            var speedFR = settings[5]
+            talonFXFrontRight.workaroundRunVelocity(speedFR)
+            var angleBR = settings[6]
+            axisControllerBackRight.workaroundRunPosition(angleBR)
+            var speedBR = settings[7]
+            talonFXBackRight.workaroundRunVelocity(speedBR)
+        }
 
         KotlinLogging.logger("NAVX Reading").info {this.heading}
 //

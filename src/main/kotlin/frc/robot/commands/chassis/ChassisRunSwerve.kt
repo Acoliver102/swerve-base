@@ -17,7 +17,7 @@ class ChassisRunSwerve: CommandBase() {
     override fun execute() {
         Chassis.runSwerveJoystick(
             Controls.controller.getRawAxis(1),
-            Controls.controller.getRawAxis(0),
+            -Controls.controller.getRawAxis(0),
             Controls.controller.getRawAxis(4)
         )
 //        KotlinLogging.logger("Swerver").info {"Working on it."}

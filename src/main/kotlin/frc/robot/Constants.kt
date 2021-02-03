@@ -38,24 +38,24 @@ object Constants {
         const val DRIVE_kF = 0.0
         const val DRIVE_kP = 0.1
         const val DRIVE_kI = 0.0
-        const val DRIVE_kD = 0.0
+        const val DRIVE_kD = 0.02
 
         const val AXIS_kF = 0.0
         const val AXIS_kP = 0.15
-        const val AXIS_kI = 0.0
-        const val AXIS_kD = 0.0
+        const val AXIS_kI = 0.00
+        const val AXIS_kD = 0.02
 
         const val STEERING_RATIO = 12.8
         const val DRIVING_RATIO = 6.86
 
-        const val TRACK_WIDTH_METERS = 0.3429
-        const val TRACK_LENGTH_METERS = 0.3429
-        const val WHEEL_RADIUS_METERS = 0.0508
+const val TRACK_WIDTH_METERS = 0.3429
+const val TRACK_LENGTH_METERS = 0.3429
+const val WHEEL_RADIUS_METERS = 0.0508
 
 
-        const val SWERVE_FORWARD_SPEED_MAX = 0.5 // meters/Sec
-        const val SWERVE_STRAFE_SPEED_MAX = 0.5
-        const val SWERVE_ROT_SPEED_MAX = 1.0 // rad/sec
+const val SWERVE_FORWARD_SPEED_MAX = 1.60 // meters/Sec
+const val SWERVE_STRAFE_SPEED_MAX = 1.60
+const val SWERVE_ROT_SPEED_MAX = 3.0 // rad/sec
 
-    }
+}
 }
